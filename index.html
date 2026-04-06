@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoPress</title>
+  <style>
+    :root {
+      --bg: #f5f2eb;
+      --text: #1a1a1a;
+      --muted: #6b6b6b;
+      --accent: #2d6a4f;
+      --border: #ddd8cc;
+      --card-bg: #fff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .search-wrap {
+      margin-bottom: 2rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      font-family: Georgia, serif;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--card-bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    .post-list { list-style: none; }
+
+    .post-item {
+      border-bottom: 1px solid var(--border);
+      padding: 1.75rem 0;
+    }
+
+    .post-item:last-child { border-bottom: none; }
+
+    .post-item a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .post-item h2 {
+      font-size: 1.35rem;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    .post-item h2:hover { text-decoration: underline; }
+
+    .meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+      margin-bottom: 0.5rem;
+    }
+
+    .excerpt {
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .no-results {
+      color: var(--muted);
+      font-style: italic;
+      padding: 2rem 0;
+    }
+
+    /* Energy badge */
+    #energy-badge {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: 'Courier New', monospace;
+      display: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>EcoPress</h1>
+  <p>Environmental journalism — served efficiently</p>
+</header>
+
+<main>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search articles..." oninput="filterPosts()">
+  </div>
+
+  <ul class="post-list" id="post-list"></ul>
+  <p class="no-results" id="no-results" style="display:none">No articles found.</p>
+</main>
+
+<div id="energy-badge"></div>
+
+<script>
+  const posts = [
+    {
+      slug: 'oceans-plastic-crisis',
+      title: 'The Ocean Plastic Crisis',
+      date: '2025-03-10',
+      author: 'Jamie Rivera',
+      excerpt: 'Every year, millions of tons of plastic enter the world\'s oceans. Here\'s what the data actually shows.'
+    },
+    {
+      slug: 'reforestation-carbon',
+      title: 'Can Reforestation Save Us?',
+      date: '2025-02-22',
+      author: 'Sam Chen',
+      excerpt: 'Planting trees is often pitched as a silver bullet for the climate. The reality is more complicated.'
+    },
+    {
+      slug: 'solar-energy-growth',
+      title: 'Solar Energy\'s Decade of Growth',
+      date: '2025-01-15',
+      author: 'Alex Torres',
+      excerpt: 'The cost of solar panels has dropped 90% in a decade. What does that mean for global energy?'
+    }
+  ];
+
+  function renderPosts(list) {
+    const ul = document.getElementById('post-list');
+    const none = document.getElementById('no-results');
+    if (list.length === 0) {
+      ul.innerHTML = '';
+      none.style.display = 'block';
+      return;
+    }
+    none.style.display = 'none';
+    ul.innerHTML = list.map(p => `
+      <li class="post-item">
+        <a href="post.html?slug=${p.slug}">
+          <h2>${p.title}</h2>
+          <p class="meta">${p.date} · ${p.author}</p>
+          <p class="excerpt">${p.excerpt}</p>
+        </a>
+      </li>
+    `).join('');
+  }
+
+  function filterPosts() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const filtered = posts.filter(p =>
+      p.title.toLowerCase().includes(q) ||
+      p.excerpt.toLowerCase().includes(q)
+    );
+    renderPosts(filtered);
+  }
+
+  renderPosts(posts);
+
+  // Energy badge
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const entries = performance.getEntriesByType('resource');
+      const totalBytes = entries.reduce((sum, e) => sum + (e.transferSize || 0), 0);
+      const nav = performance.getEntriesByType('navigation')[0];
+      const total = totalBytes + (nav?.transferSize || 0);
+      const kb = (total / 1024).toFixed(1);
+      const requests = entries.length + 1;
+      const co2 = ((total / 1e9) * 0.81 * 442 * 0.75 * 1000).toFixed(2);
+
+      const badge = document.getElementById('energy-badge');
+      badge.textContent = `⚡ ${kb} KB · ${requests} requests · ~${co2} mg CO₂`;
+      badge.style.display = 'block';
+    }, 1000);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoPress — Article</title>
+  <style>
+    :root {
+      --bg: #f5f2eb;
+      --text: #1a1a1a;
+      --muted: #6b6b6b;
+      --accent: #2d6a4f;
+      --border: #ddd8cc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      letter-spacing: -0.5px;
+      color: var(--accent);
+    }
+
+    .wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .back {
+      display: inline-block;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 2rem;
+    }
+
+    .back:hover { text-decoration: underline; }
+
+    article h2 {
+      font-size: 2rem;
+      line-height: 1.25;
+      margin-bottom: 0.5rem;
+    }
+
+    .meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'Courier New', monospace;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    article p {
+      margin-bottom: 1.25rem;
+      color: #222;
+    }
+
+    .not-found {
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 2rem;
+    }
+
+    #energy-badge {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: 'Courier New', monospace;
+      display: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>EcoPress</h1>
+</header>
+
+<div class="wrapper">
+  <a href="index.html" class="back">← Back</a>
+  <div id="content"></div>
+</div>
+
+<div id="energy-badge"></div>
+
+<script>
+  const posts = [
+    {
+      slug: 'oceans-plastic-crisis',
+      title: 'The Ocean Plastic Crisis',
+      date: '2025-03-10',
+      author: 'Jamie Rivera',
+      body: `Plastic pollution in the ocean is one of the most visible environmental crises of our time. Estimates suggest that between 4 and 12 million metric tons of plastic enter the ocean annually. Much of it breaks down into microplastics — tiny fragments that have now been found in fish tissue, drinking water, and even human blood.\n\nThe Great Pacific Garbage Patch, often described as an "island of trash," is actually more of a diffuse soup of microplastics spread across 1.6 million square kilometers. Cleaning it up is enormously difficult precisely because the particles are so small and so dispersed.\n\nSolutions include reducing single-use plastics at the source, improving waste management in coastal regions, and developing biodegradable alternatives. Consumer pressure and policy change both play important roles.`
+    },
+    {
+      slug: 'reforestation-carbon',
+      title: 'Can Reforestation Save Us?',
+      date: '2025-02-22',
+      author: 'Sam Chen',
+      body: `Reforestation has captured public imagination as a simple, scalable climate solution. A widely-cited 2019 study claimed that planting a trillion trees could capture two-thirds of human carbon emissions. The claim was later disputed, but the enthusiasm stuck.\n\nThe reality is that trees do sequester carbon — but the amount, speed, and permanence depend heavily on what kind of trees are planted, where, and how the land is managed afterward. Monoculture tree farms, for example, often store less carbon than diverse native forests and provide fewer ecosystem services.\n\nNative reforestation done well — restoring diverse, self-sustaining ecosystems — is genuinely valuable. It supports biodiversity, stabilizes watersheds, and does sequester meaningful amounts of carbon over decades. It just isn't a substitute for reducing emissions at source.`
+    },
+    {
+      slug: 'solar-energy-growth',
+      title: "Solar Energy's Decade of Growth",
+      date: '2025-01-15',
+      author: 'Alex Torres',
+      body: `The story of solar energy over the past decade is one of the most remarkable in modern industrial history. In 2010, the cost of utility-scale solar was around $0.40 per kilowatt-hour. By 2024, it had fallen to under $0.04 per kilowatt-hour in many markets — a 90% reduction in roughly fifteen years.\n\nThis price collapse has made solar the cheapest source of new electricity generation in most of the world. Global installed capacity has grown from around 40 gigawatts in 2010 to over 1,600 gigawatts in 2024. Countries like China, the US, and India are adding capacity at record rates.\n\nChallenges remain: solar is intermittent, requiring storage or grid backup; manufacturing panels has its own environmental footprint; and the benefits are unevenly distributed globally. But the trajectory is undeniably positive.`
+    }
+  ];
+
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('slug');
+  const post = posts.find(p => p.slug === slug);
+  const content = document.getElementById('content');
+
+  if (post) {
+    document.title = `${post.title} — EcoPress`;
+    const paragraphs = post.body.split('\n\n').map(p => `<p>${p}</p>`).join('');
+    content.innerHTML = `
+      <article>
+        <h2>${post.title}</h2>
+        <p class="meta">${post.date} · ${post.author}</p>
+        ${paragraphs}
+      </article>
+    `;
+  } else {
+    content.innerHTML = '<p class="not-found">Article not found.</p>';
+  }
+
+  // Energy badge
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const entries = performance.getEntriesByType('resource');
+      const totalBytes = entries.reduce((sum, e) => sum + (e.transferSize || 0), 0);
+      const nav = performance.getEntriesByType('navigation')[0];
+      const total = totalBytes + (nav?.transferSize || 0);
+      const kb = (total / 1024).toFixed(1);
+      const requests = entries.length + 1;
+      const co2 = ((total / 1e9) * 0.81 * 442 * 0.75 * 1000).toFixed(2);
+
+      const badge = document.getElementById('energy-badge');
+      badge.textContent = `⚡ ${kb} KB · ${requests} requests · ~${co2} mg CO₂`;
+      badge.style.display = 'block';
+    }, 1000);
+  });
+</script>
+
+</body>
+</html>
